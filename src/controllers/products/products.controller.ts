@@ -9,8 +9,8 @@ import {
   Delete,
   HttpStatus,
   HttpCode,
-  ParseIntPipe,
 } from '@nestjs/common';
+import { ParseIntPipe } from 'src/common/pipes/parse-int/parse-int.pipe';
 import { Product } from 'src/entity/products.entity';
 import { ProductsService } from 'src/services/products/products.service';
 
