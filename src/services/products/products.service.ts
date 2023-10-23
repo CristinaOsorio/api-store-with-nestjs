@@ -65,7 +65,7 @@ export class ProductsService {
         HttpStatus.NOT_FOUND,
       );
     }
-    this.products.slice(productIndex, 1);
+    this.products.splice(productIndex, 1);
     return true;
   }
 
