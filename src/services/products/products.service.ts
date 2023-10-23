@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CreateProductDto, UpdateProductDto } from 'src/dtos/products.dtos';
 import { Product } from 'src/entity/products.entity';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class ProductsService {
   }
 
   findOne(id: number) {
-    const product = this.products.find((product) => product.id === id);
+    const product = this.products.find((product) => product.id == id);
 
     if (!product) {
       throw new HttpException(
@@ -31,7 +32,7 @@ export class ProductsService {
     return product;
   }
 
-  create(payload: any) {
+  create(payload: CreateProductDto) {
     this.counterId = this.counterId + 1;
     const product = {
       id: this.counterId,
@@ -43,7 +44,7 @@ export class ProductsService {
     return product;
   }
 
-  update(id: number, payload: any) {
+  update(id: number, payload: UpdateProductDto) {
     const productIndex = this.searchIndex(id);
     if (productIndex !== -1) {
       this.products[productIndex] = {
