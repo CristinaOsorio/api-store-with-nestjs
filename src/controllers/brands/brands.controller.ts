@@ -11,7 +11,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { CreateBrandDto, UpdateBrandDto } from '../../dtos/brands.dtos';
-import { Brand } from '../../entity/brand.entity';
+import { Brand } from '../../entities/brand.entity';
 import { BrandsService } from '../../services/brands/brands.service';
 
 @Controller('brands')

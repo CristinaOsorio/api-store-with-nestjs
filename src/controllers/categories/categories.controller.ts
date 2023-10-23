@@ -14,7 +14,7 @@ import {
   CreateCategoryDto,
   UpdateCategoryDto,
 } from '../../dtos/categories.dtos';
-import { Category } from '../../entity/category.entity';
+import { Category } from '../../entities/category.entity';
 import { CategoriesService } from '../../services/categories/categories.service';
 
 @Controller('categories')

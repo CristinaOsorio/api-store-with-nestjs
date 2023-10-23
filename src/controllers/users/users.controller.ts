@@ -11,7 +11,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from '../../dtos/users.dtos';
-import { User } from '../../entity/user.entity';
+import { User } from '../../entities/user.entity';
 import { UsersService } from '../../services/users/users.service';
 
 @Controller('users')
