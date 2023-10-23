@@ -3,7 +3,7 @@ import { Category } from '../../entity/category.entity';
 
 @Injectable()
 export class CategoriesService {
-  private counterId = 2;
+  private counterId = 1;
   private categories: Category[] = [
     {
       id: 1,
