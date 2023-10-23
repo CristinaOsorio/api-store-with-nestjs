@@ -10,9 +10,9 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CreateBrandDto, UpdateBrandDto } from '../../dtos/brands.dtos';
-import { Brand } from '../../entities/brand.entity';
-import { BrandsService } from '../../services/brands/brands.service';
+import { CreateBrandDto, UpdateBrandDto } from '@dtos/brands.dtos';
+import { Brand } from '@entities/brand.entity';
+import { BrandsService } from '@services/brands/brands.service';
 
 @Controller('brands')
 export class BrandsController {

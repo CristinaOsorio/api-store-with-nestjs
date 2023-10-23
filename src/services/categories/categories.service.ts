@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Category } from '../../entities/category.entity';
+import { Category } from '@entities/category.entity';
 
 @Injectable()
 export class CategoriesService {

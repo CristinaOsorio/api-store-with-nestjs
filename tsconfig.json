@@ -16,6 +16,13 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@controllers/*": ["./src/controllers/*"],
+      "@dtos/*": ["./src/dtos/*"],
+      "@entities/*": ["src/entities/*"],
+      "@pipes/*": ["./src/common/pipes/*"],
+      "@services/*": ["./src/services/*"],
+    }
   }
 }
