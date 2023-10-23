@@ -10,10 +10,10 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
-import { ParseIntPipe } from 'src/common/pipes/parse-int/parse-int.pipe';
-import { CreateProductDto, UpdateProductDto } from 'src/dtos/products.dtos';
-import { Product } from 'src/entity/products.entity';
-import { ProductsService } from 'src/services/products/products.service';
+import { ParseIntPipe } from '../../common/pipes/parse-int/parse-int.pipe';
+import { CreateProductDto, UpdateProductDto } from '../../dtos/products.dtos';
+import { Product } from '../../entity/product.entity';
+import { ProductsService } from '../../services/products/products.service';
 
 @Controller('products')
 export class ProductsController {
