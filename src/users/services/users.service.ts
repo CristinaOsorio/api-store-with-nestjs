@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '../entities/user.entity';
+import { Order } from '../entities/order.entity';
+import { ProductsService } from '../../products/services/products.service';
 
 @Injectable()
 export class UsersService {
@@ -12,6 +14,8 @@ export class UsersService {
       role: 'ADMIN',
     },
   ];
+
+  constructor(private productService: ProductsService) {}
 
   findAll() {
     return this.users;
@@ -59,6 +63,16 @@ export class UsersService {
     this.users.splice(userIndex, 1);
 
     return true;
+  }
+
+  getOrderByUser(id: number): Order {
+    const user = this.findOne(id);
+
+    return {
+      date: new Date(),
+      user,
+      products: this.productService.findAll(),
+    };
   }
 
   private searchIndex(id: number): number {
