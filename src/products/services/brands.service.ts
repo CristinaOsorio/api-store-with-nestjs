@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Brand } from '@entities/brand.entity';
+import { Brand } from '../entities/brand.entity';
 
 @Injectable()
 export class BrandsService {
