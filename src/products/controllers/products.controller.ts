@@ -10,11 +10,13 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { ParseIntPipe } from '@pipes/parse-int/parse-int.pipe';
-import { CreateProductDto, UpdateProductDto } from '../dtos/products.dtos';
+import { CreateProductDto, UpdateProductDto } from '../dtos/products.dto';
 import { Product } from '../entities/product.entity';
 import { ProductsService } from '../services/products.service';
 
+@ApiTags('¨Products')
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
