@@ -34,8 +34,8 @@ export class UsersController {
 
   @Get(':id/orders')
   @HttpCode(HttpStatus.OK)
-  getOrders(@Param('id', ParseIntPipe) id: number): Order {
-    return this.usersService.getOrderByUser(id);
+  async getOrders(@Param('id', ParseIntPipe) id: number): Promise<Order> {
+    return await this.usersService.getOrderByUser(id);
   }
 
   @Post()
