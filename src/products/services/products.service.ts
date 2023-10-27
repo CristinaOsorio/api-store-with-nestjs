@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 
 import {
   CreateProductDto,
@@ -14,12 +14,21 @@ export class ProductsService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
-  findAll(params?: FilterProductsDto) {
+
+  async findAll(params?: FilterProductsDto) {
     if (params) {
-      const { limit, offset } = params;
+      const filters: any = {};
+      const { limit, offset, minPrice, maxPrice } = params;
+
+      if (minPrice && maxPrice) {
+        filters.price = { $gte: minPrice, $lte: maxPrice };
+      }
+
+      const skipValue = offset >= 0 ? offset * limit : 0;
+
       return this.productModel
-        .find()
-        .skip(offset * limit)
+        .find(filters)
+        .skip(skipValue)
         .limit(limit)
         .exec();
     }
@@ -28,7 +37,6 @@ export class ProductsService {
 
   async findOne(id: string) {
     const product = await this.productModel.findById(id).exec();
-    console.log(product);
 
     if (!product) {
       throw new HttpException(

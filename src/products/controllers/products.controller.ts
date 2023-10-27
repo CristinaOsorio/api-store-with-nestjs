@@ -26,7 +26,7 @@ export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
   @Get()
-  getProducts(@Query() params: FilterProductsDto) {
+  getProducts(@Query() params?: FilterProductsDto) {
     return this.productsService.findAll(params);
   }
 
