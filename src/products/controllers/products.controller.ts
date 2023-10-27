@@ -11,7 +11,11 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateProductDto, UpdateProductDto } from '../dtos/products.dto';
+import {
+  CreateProductDto,
+  FilterProductsDto,
+  UpdateProductDto,
+} from '../dtos/products.dto';
 import { Product } from '../entities/product.entity';
 import { ProductsService } from '../services/products.service';
 import { MongoIdPipe } from '@pipes/mongo-id/mongo-id.pipe';
@@ -22,12 +26,8 @@ export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
   @Get()
-  async getAll(
-    @Query('limit') limit = 100,
-    @Query('offset') offset = 0,
-    @Query('brand') brand: number,
-  ): Promise<Product[]> {
-    return this.productsService.findAll();
+  getProducts(@Query() params: FilterProductsDto) {
+    return this.productsService.findAll(params);
   }
 
   @Get(':id')
@@ -46,16 +46,7 @@ export class ProductsController {
     @Param('id', MongoIdPipe) id: string,
     @Body() payload: UpdateProductDto,
   ): Promise<Product> {
-    return this.productsService
-      .update(id, payload)
-      .then((error) => {
-        console.log(error);
-        return error;
-      })
-      .catch((error) => {
-        console.log(error);
-        return error;
-      });
+    return this.productsService.update(id, payload);
   }
 
   @Delete(':id')
