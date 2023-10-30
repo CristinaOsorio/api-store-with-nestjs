@@ -1,22 +1,22 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
 import { Category } from '../entities/category.entity';
+import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/categories.dto';
 
 @Injectable()
 export class CategoriesService {
-  private counterId = 1;
-  private categories: Category[] = [
-    {
-      id: 1,
-      name: 'Special Category',
-    },
-  ];
+  constructor(
+    @InjectModel(Category.name) private categoryModel: Model<Category>,
+  ) {}
 
   findAll() {
-    return this.categories;
+    return this.categoryModel.find().exec();
   }
 
-  findOne(id: number) {
-    const category = this.categories.find((category) => category.id == id);
+  async findOne(id: string) {
+    const category = await this.categoryModel.findById(id).exec();
 
     if (!category) {
       throw new HttpException(
@@ -27,45 +27,23 @@ export class CategoriesService {
     return category;
   }
 
-  create(payload: any) {
-    this.counterId = this.counterId + 1;
-    const category = {
-      id: this.counterId,
-      ...payload,
-    };
-
-    this.categories.push(category);
-
-    return category;
+  create(payload: CreateCategoryDto) {
+    const category = new this.categoryModel(payload);
+    return category.save();
   }
 
-  update(id: number, payload: any) {
-    const categoryIndex = this.searchIndex(id);
-    if (categoryIndex !== -1) {
-      this.categories[categoryIndex] = {
-        ...this.categories[categoryIndex],
-        ...payload,
-      };
-      return this.categories[categoryIndex];
-    }
+  update(id: string, payload: UpdateCategoryDto) {
+    const category = this.categoryModel
+      .findByIdAndUpdate(id, { $set: payload }, { new: true })
+      .exec();
 
+    if (category) {
+      return category;
+    }
     throw new HttpException(`Category #${id} not found.`, HttpStatus.NOT_FOUND);
   }
 
-  delete(id: number): boolean {
-    const categoryIndex = this.searchIndex(id);
-    if (categoryIndex === -1) {
-      throw new HttpException(
-        `Category #${id} not found.`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    this.categories.splice(categoryIndex, 1);
-
-    return true;
-  }
-
-  private searchIndex(id: number): number {
-    return this.categories.findIndex((category) => category.id === id);
+  delete(id: string) {
+    return this.categoryModel.findByIdAndDelete(id);
   }
 }

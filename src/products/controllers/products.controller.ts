@@ -20,7 +20,7 @@ import { Product } from '../entities/product.entity';
 import { ProductsService } from '../services/products.service';
 import { MongoIdPipe } from '@pipes/mongo-id/mongo-id.pipe';
 
-@ApiTags('¨Products')
+@ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
