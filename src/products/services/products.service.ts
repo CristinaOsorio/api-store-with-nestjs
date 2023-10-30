@@ -28,11 +28,12 @@ export class ProductsService {
 
       return this.productModel
         .find(filters)
+        .populate('category')
         .skip(skipValue)
         .limit(limit)
         .exec();
     }
-    return this.productModel.find().exec();
+    return this.productModel.find().populate('category').exec();
   }
 
   async findOne(id: string) {
