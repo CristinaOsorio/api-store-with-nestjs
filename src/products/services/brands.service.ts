@@ -1,28 +1,19 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Brand } from '../entities/brand.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CreateBrandDto, UpdateBrandDto } from '../dtos/brands.dto';
 
 @Injectable()
 export class BrandsService {
-  private counterId = 2;
-  private brands: Brand[] = [
-    {
-      id: 1,
-      name: 'brand 1',
-      image: '',
-    },
-    {
-      id: 2,
-      name: 'brand 2',
-      image: '',
-    },
-  ];
+  constructor(@InjectModel(Brand.name) private brandModel: Model<Brand>) {}
 
   findAll() {
-    return this.brands;
+    return this.brandModel.find().exec();
   }
 
-  findOne(id: number) {
-    const brand = this.brands.find((brand) => brand.id == id);
+  findOne(id: string) {
+    const brand = this.brandModel.findById(id).exec();
 
     if (!brand) {
       throw new HttpException(`Brand #${id} not found.`, HttpStatus.NOT_FOUND);
@@ -30,42 +21,22 @@ export class BrandsService {
     return brand;
   }
 
-  create(payload: any) {
-    this.counterId = this.counterId + 1;
-    const brand = {
-      id: this.counterId,
-      ...payload,
-    };
-
-    this.brands.push(brand);
-
-    return brand;
+  create(payload: CreateBrandDto) {
+    const brand = new this.brandModel(payload);
+    return brand.save();
   }
 
-  update(id: number, payload: any) {
-    const brandIndex = this.searchIndex(id);
-    if (brandIndex !== -1) {
-      this.brands[brandIndex] = {
-        ...this.brands[brandIndex],
-        ...payload,
-      };
-      return this.brands[brandIndex];
+  update(id: string, payload: UpdateBrandDto) {
+    const brand = this.brandModel
+      .findByIdAndUpdate(id, { $set: payload }, { new: true })
+      .exec();
+    if (brand) {
+      return brand;
     }
-
     throw new HttpException(`Brand #${id} not found.`, HttpStatus.NOT_FOUND);
   }
 
-  delete(id: number): boolean {
-    const brandIndex = this.searchIndex(id);
-    if (brandIndex === -1) {
-      throw new HttpException(`Brand #${id} not found.`, HttpStatus.NOT_FOUND);
-    }
-    this.brands.splice(brandIndex, 1);
-
-    return true;
-  }
-
-  private searchIndex(id: number): number {
-    return this.brands.findIndex((brand) => brand.id === id);
+  delete(id: string) {
+    return this.brandModel.findByIdAndDelete(id);
   }
 }

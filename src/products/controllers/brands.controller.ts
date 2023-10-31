@@ -14,6 +14,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreateBrandDto, UpdateBrandDto } from '../dtos/brands.dto';
 import { Brand } from '../entities/brand.entity';
 import { BrandsService } from '../services/brands.service';
+import { MongoIdPipe } from '@pipes/mongo-id/mongo-id.pipe';
 
 @ApiTags('Brands')
 @Controller('brands')
@@ -21,31 +22,31 @@ export class BrandsController {
   constructor(private brandsService: BrandsService) {}
 
   @Get()
-  getAll(): Brand[] {
+  getAll(): Promise<Brand[]> {
     return this.brandsService.findAll();
   }
 
-  @Get(':brandId')
+  @Get(':id')
   @HttpCode(HttpStatus.ACCEPTED)
-  getOne(@Param('brandId', ParseIntPipe) brandId: number): Brand {
-    return this.brandsService.findOne(brandId);
+  getOne(@Param('id', MongoIdPipe) id: string): Promise<Brand> {
+    return this.brandsService.findOne(id);
   }
 
   @Post()
-  create(@Body() payload: CreateBrandDto): Brand {
+  create(@Body() payload: CreateBrandDto): Promise<Brand> {
     return this.brandsService.create(payload);
   }
 
   @Put(':id')
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: string,
     @Body() payload: UpdateBrandDto,
-  ): Brand {
+  ): Promise<Brand> {
     return this.brandsService.update(id, payload);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number): boolean {
+  delete(@Param('id', ParseIntPipe) id: string): Promise<Brand> {
     return this.brandsService.delete(id);
   }
 }
