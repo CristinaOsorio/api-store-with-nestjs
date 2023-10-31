@@ -37,6 +37,10 @@ export class CreateProductDto {
   @IsNotEmpty()
   @IsMongoId()
   readonly category: string;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  readonly brand: string;
 }
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {}
