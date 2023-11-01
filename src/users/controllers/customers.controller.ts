@@ -14,6 +14,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreateCustomerDto, UpdateCustomerDto } from '../dtos/customers.dto';
 import { Customer } from '../entities/customer.entity';
 import { CustomersService } from '../services/customers.service';
+import { MongoIdPipe } from '@pipes/mongo-id/mongo-id.pipe';
 
 @ApiTags('Customers')
 @Controller('customers')
@@ -21,31 +22,31 @@ export class CustomersController {
   constructor(private customersService: CustomersService) {}
 
   @Get()
-  getAll(): Customer[] {
+  getAll(): Promise<Customer[]> {
     return this.customersService.findAll();
   }
 
-  @Get(':customerId')
+  @Get(':id')
   @HttpCode(HttpStatus.ACCEPTED)
-  getOne(@Param('customerId', ParseIntPipe) customerId: number): Customer {
-    return this.customersService.findOne(customerId);
+  getOne(@Param('id', MongoIdPipe) id: string): Promise<Customer> {
+    return this.customersService.findOne(id);
   }
 
   @Post()
-  create(@Body() payload: CreateCustomerDto): Customer {
+  create(@Body() payload: CreateCustomerDto): Promise<Customer> {
     return this.customersService.create(payload);
   }
 
   @Put(':id')
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', MongoIdPipe) id: string,
     @Body() payload: UpdateCustomerDto,
-  ): Customer {
+  ): Promise<Customer> {
     return this.customersService.update(id, payload);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number): boolean {
+  delete(@Param('id', MongoIdPipe) id: string): Promise<Customer> {
     return this.customersService.delete(id);
   }
 }

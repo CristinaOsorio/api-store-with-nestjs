@@ -1,24 +1,21 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Customer } from '../entities/customer.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CreateCustomerDto, UpdateCustomerDto } from '../dtos/customers.dto';
 
 @Injectable()
 export class CustomersService {
-  private counterId = 1;
-  private customers: Customer[] = [
-    {
-      id: 1,
-      name: 'Pedro',
-      lastName: 'Walle',
-      phone: '123456789',
-    },
-  ];
+  constructor(
+    @InjectModel(Customer.name) private customerModel: Model<Customer>,
+  ) {}
 
   findAll() {
-    return this.customers;
+    return this.customerModel.find().exec();
   }
 
-  findOne(id: number) {
-    const customer = this.customers.find((customer) => customer.id == id);
+  findOne(id: string) {
+    const customer = this.customerModel.findById(id);
 
     if (!customer) {
       throw new HttpException(
@@ -29,45 +26,24 @@ export class CustomersService {
     return customer;
   }
 
-  create(payload: any) {
-    this.counterId = this.counterId + 1;
-    const customer = {
-      id: this.counterId,
-      ...payload,
-    };
-
-    this.customers.push(customer);
-
-    return customer;
+  create(payload: CreateCustomerDto) {
+    const customer = new this.customerModel(payload);
+    return customer.save();
   }
 
-  update(id: number, payload: any) {
-    const customerIndex = this.searchIndex(id);
-    if (customerIndex !== -1) {
-      this.customers[customerIndex] = {
-        ...this.customers[customerIndex],
-        ...payload,
-      };
-      return this.customers[customerIndex];
+  update(id: string, payload: UpdateCustomerDto) {
+    const customer = this.customerModel
+      .findByIdAndUpdate(id, { $set: payload }, { new: true })
+      .exec();
+
+    if (customer) {
+      return customer;
     }
 
     throw new HttpException(`Customer #${id} not found.`, HttpStatus.NOT_FOUND);
   }
 
-  delete(id: number): boolean {
-    const customerIndex = this.searchIndex(id);
-    if (customerIndex === -1) {
-      throw new HttpException(
-        `Customer #${id} not found.`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    this.customers.splice(customerIndex, 1);
-
-    return true;
-  }
-
-  private searchIndex(id: number): number {
-    return this.customers.findIndex((customer) => customer.id === id);
+  delete(id: string) {
+    return this.customerModel.findByIdAndDelete(id);
   }
 }
