@@ -35,7 +35,7 @@ export class UsersController {
 
   @Get(':id/orders')
   @HttpCode(HttpStatus.OK)
-  async getOrders(@Param('id', MongoIdPipe) id: string): Promise<Order> {
+  async getOrders(@Param('id', MongoIdPipe) id: string) {
     return await this.usersService.getOrderByUser(id);
   }
 

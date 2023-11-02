@@ -49,7 +49,7 @@ export class UsersService {
     return this.userModel.findByIdAndDelete(id);
   }
 
-  async getOrderByUser(id: string): Promise<Order> {
+  async getOrderByUser(id: string) {
     const user = await this.findOne(id);
 
     return {

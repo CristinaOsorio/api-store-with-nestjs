@@ -9,6 +9,9 @@ import { ProductsModule } from './../products/products.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Customer, CustomerSchema } from './entities/customer.entity';
 import { User, UserShcema } from './entities/user.entity';
+import { Order, OrderSchema } from './entities/order.entity';
+import { OrdersService } from './services/orders.service';
+import { OrdersController } from './controllers/orders.controller';
 
 @Module({
   imports: [
@@ -16,9 +19,10 @@ import { User, UserShcema } from './entities/user.entity';
     MongooseModule.forFeature([
       { name: Customer.name, schema: CustomerSchema },
       { name: User.name, schema: UserShcema },
+      { name: Order.name, schema: OrderSchema },
     ]),
   ],
-  controllers: [CustomersController, UsersController],
-  providers: [CustomersService, UsersService],
+  controllers: [CustomersController, UsersController, OrdersController],
+  providers: [CustomersService, UsersService, OrdersService],
 })
 export class UsersModule {}
