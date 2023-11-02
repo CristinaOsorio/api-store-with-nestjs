@@ -48,4 +48,12 @@ export class OrdersController {
   delete(@Param('id', MongoIdPipe) id: string): Promise<Order> {
     return this.ordersService.delete(id);
   }
+
+  @Delete(':id/product/:productId')
+  deleteProduct(
+    @Param('id', MongoIdPipe) id: string,
+    @Param('productId', MongoIdPipe) productId: string,
+  ): Promise<Order> {
+    return this.ordersService.deleteProduct(id, productId);
+  }
 }
