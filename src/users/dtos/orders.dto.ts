@@ -15,6 +15,12 @@ export class CreateOrderDto {
   readonly products: string[];
 }
 
+export class AddProductsToOrderDto {
+  @IsArray()
+  @IsNotEmpty()
+  readonly products: string[];
+}
+
 export class UpdateOrderDto extends PartialType(
   OmitType(CreateOrderDto, ['products']),
 ) {}
