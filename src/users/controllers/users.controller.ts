@@ -34,7 +34,7 @@ export class UsersController {
 
   @Get(':id/orders')
   @HttpCode(HttpStatus.OK)
-  getOrders(@Param('id', ParseIntPipe) id: number): Order {
+  getOrders(@Param('id', ParseIntPipe) id: number): Promise<Order> {
     return this.usersService.getOrderByUser(id);
   }
 
