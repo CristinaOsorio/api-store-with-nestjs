@@ -17,7 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           username: user,
           password,
           database: db,
-          synchronize: true,
+          synchronize: false,
           autoLoadEntities: true,
         };
       },
