@@ -4,6 +4,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 export class Category {
   @PrimaryGeneratedColumn()
   id: number;
+
   @Column({ type: 'varchar', unique: true })
   name: string;
 }

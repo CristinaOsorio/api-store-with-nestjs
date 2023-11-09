@@ -1,22 +1,23 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { DeleteResult, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+
 import { Category } from '../entities/category.entity';
+import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/categories.dto';
 
 @Injectable()
 export class CategoriesService {
-  private counterId = 1;
-  private categories: Category[] = [
-    {
-      id: 1,
-      name: 'Special Category',
-    },
-  ];
+  constructor(
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+  ) {}
 
   findAll() {
-    return this.categories;
+    return this.categoryRepository.find();
   }
 
-  findOne(id: number) {
-    const category = this.categories.find((category) => category.id == id);
+  async findOne(id: number) {
+    const category = await this.categoryRepository.findOneBy({ id });
 
     if (!category) {
       throw new HttpException(
@@ -27,45 +28,35 @@ export class CategoriesService {
     return category;
   }
 
-  create(payload: any) {
-    this.counterId = this.counterId + 1;
-    const category = {
-      id: this.counterId,
-      ...payload,
-    };
-
-    this.categories.push(category);
-
-    return category;
+  create(payload: CreateCategoryDto) {
+    const category = this.categoryRepository.create(payload);
+    return this.categoryRepository.save(category);
   }
 
-  update(id: number, payload: any) {
-    const categoryIndex = this.searchIndex(id);
-    if (categoryIndex !== -1) {
-      this.categories[categoryIndex] = {
-        ...this.categories[categoryIndex],
-        ...payload,
-      };
-      return this.categories[categoryIndex];
-    }
+  async update(id: number, payload: UpdateCategoryDto) {
+    const category = await this.categoryRepository.findOneBy({ id });
 
-    throw new HttpException(`Category #${id} not found.`, HttpStatus.NOT_FOUND);
-  }
-
-  delete(id: number): boolean {
-    const categoryIndex = this.searchIndex(id);
-    if (categoryIndex === -1) {
+    if (!category) {
       throw new HttpException(
         `Category #${id} not found.`,
         HttpStatus.NOT_FOUND,
       );
     }
-    this.categories.splice(categoryIndex, 1);
 
-    return true;
+    this.categoryRepository.merge(category, payload);
+    return this.categoryRepository.save(category);
   }
 
-  private searchIndex(id: number): number {
-    return this.categories.findIndex((category) => category.id === id);
+  async delete(id: number): Promise<DeleteResult> {
+    const category = await this.categoryRepository.findOneBy({ id });
+
+    if (!category) {
+      throw new HttpException(
+        `Category #${id} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return this.categoryRepository.delete(id);
   }
 }
