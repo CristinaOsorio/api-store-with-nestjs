@@ -2,27 +2,23 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '../entities/user.entity';
 import { Order } from '../entities/order.entity';
 import { ProductsService } from '../../products/services/products.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteResult, Repository } from 'typeorm';
+import { CreateUserDto, UpdateUserDto } from '../dtos/users.dto';
 
 @Injectable()
 export class UsersService {
-  private counterId = 1;
-  private users: User[] = [
-    {
-      id: 1,
-      email: 'example@test.com',
-      password: '123456',
-      role: 'ADMIN',
-    },
-  ];
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>,
+    private productService: ProductsService,
+  ) {}
 
-  constructor(private productService: ProductsService) {}
-
-  findAll() {
-    return this.users;
+  findAll(): Promise<User[]> {
+    return this.userRepository.find();
   }
 
-  findOne(id: number) {
-    const user = this.users.find((user) => user.id == id);
+  async findOne(id: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
 
     if (!user) {
       throw new HttpException(`User #${id} not found.`, HttpStatus.NOT_FOUND);
@@ -30,52 +26,42 @@ export class UsersService {
     return user;
   }
 
-  create(payload: any) {
-    this.counterId = this.counterId + 1;
-    const user = {
-      id: this.counterId,
-      ...payload,
-    };
-
-    this.users.push(user);
-
-    return user;
+  create(payload: CreateUserDto): Promise<User> {
+    const user = this.userRepository.create(payload);
+    return this.userRepository.save(user);
   }
 
-  update(id: number, payload: any) {
-    const userIndex = this.searchIndex(id);
-    if (userIndex !== -1) {
-      this.users[userIndex] = {
-        ...this.users[userIndex],
-        ...payload,
-      };
-      return this.users[userIndex];
-    }
+  async update(id: number, payload: UpdateUserDto): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
 
-    throw new HttpException(`User #${id} not found.`, HttpStatus.NOT_FOUND);
-  }
-
-  delete(id: number): boolean {
-    const userIndex = this.searchIndex(id);
-    if (userIndex === -1) {
+    if (!user) {
       throw new HttpException(`User #${id} not found.`, HttpStatus.NOT_FOUND);
     }
-    this.users.splice(userIndex, 1);
 
-    return true;
+    this.userRepository.merge(user, payload);
+    return this.userRepository.save(user);
   }
 
-  async getOrderByUser(id: number): Promise<Order> {
-    const user = this.findOne(id);
+  async delete(id: number): Promise<DeleteResult> {
+    const user = await this.userRepository.findOneBy({ id });
 
-    return {
-      date: new Date(),
-      user,
-      products: await this.productService.findAll(),
-    };
+    if (!user) {
+      throw new HttpException(
+        `Product #${id} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return this.userRepository.delete(id);
   }
 
-  private searchIndex(id: number): number {
-    return this.users.findIndex((user) => user.id === id);
-  }
+  // async getOrderByUser(id: number): Promise<Order> {
+  //   const user = this.findOne(id);
+
+  //   return {
+  //     date: new Date(),
+  //     user,
+  //     products: await this.productService.findAll(),
+  //   };
+  // }
 }
