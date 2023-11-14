@@ -43,6 +43,14 @@ export class ProductsController {
     return this.productsService.create(payload);
   }
 
+  @Put(':id/categories/:categoryId')
+  addCategoryToProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+  ): Promise<Product> {
+    return this.productsService.addCategoryToProduct(id, categoryId);
+  }
+
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -54,5 +62,14 @@ export class ProductsController {
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number): Promise<any> {
     return this.productsService.delete(id);
+  }
+
+  @Delete(':id/categories/:categoryId')
+  deleteCategoryByProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+  ): Promise<Product> {
+    console.log({ id, categoryId });
+    return this.productsService.deleteCategoryByProduct(id, categoryId);
   }
 }

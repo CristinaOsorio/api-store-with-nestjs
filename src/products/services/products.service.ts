@@ -73,13 +73,54 @@ export class ProductsService {
     }
 
     if (payload.categoriesIds) {
-      const categories = await this.categoryRepository.findBy({
+      product.categories = await this.categoryRepository.findBy({
         id: In(payload.categoriesIds),
       });
-      product.categories = categories;
     }
 
     this.productRepository.merge(product, payload);
+    return this.productRepository.save(product);
+  }
+
+  async addCategoryToProduct(
+    productId: number,
+    categoryId: number,
+  ): Promise<Product> {
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+      relations: ['categories'],
+    });
+
+    const category = await this.categoryRepository.findOneBy({
+      id: categoryId,
+    });
+
+    if (!category) {
+      throw new HttpException(
+        `Category #${categoryId} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    product.categories.push(category);
+    return this.productRepository.save(product);
+  }
+
+  async deleteCategoryByProduct(
+    productId: number,
+    categoryId: number,
+  ): Promise<Product> {
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+      relations: ['categories'],
+    });
+
+    const categories = product.categories.filter((category) => {
+      return category.id !== categoryId;
+    });
+
+    product.categories = categories;
+
     return this.productRepository.save(product);
   }
 
