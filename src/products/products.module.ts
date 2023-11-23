@@ -17,6 +17,6 @@ import { Brand } from './entities/brand.entity';
   imports: [TypeOrmModule.forFeature([Product, Category, Brand])],
   controllers: [BrandsController, CategoriesController, ProductsController],
   providers: [BrandsService, CategoriesService, ProductsService],
-  exports: [ProductsService],
+  exports: [ProductsService, TypeOrmModule],
 })
 export class ProductsModule {}
