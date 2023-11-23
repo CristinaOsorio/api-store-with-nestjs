@@ -2,7 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { DeleteResult, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { CreateProductDto, UpdateProductDto } from '../dtos/products.dto';
+import {
+  CreateProductDto,
+  FilterProductDto,
+  UpdateProductDto,
+} from '../dtos/products.dto';
 import { Product } from '../entities/product.entity';
 import { Category } from '../entities/category.entity';
 import { Brand } from '../entities/brand.entity';
@@ -17,7 +21,16 @@ export class ProductsService {
     private brandRepository: Repository<Brand>,
   ) {}
 
-  findAll() {
+  findAll(params?: FilterProductDto) {
+    if (params) {
+      const { limit, offset } = params;
+      const skipValue = offset >= 0 ? offset * limit : 0;
+      return this.productRepository.find({
+        relations: ['brand'],
+        take: limit,
+        skip: skipValue,
+      });
+    }
     return this.productRepository.find({
       relations: ['brand'],
     });
