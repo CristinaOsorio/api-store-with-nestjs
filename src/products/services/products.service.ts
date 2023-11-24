@@ -1,5 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { DeleteResult, In, Repository } from 'typeorm';
+import {
+  DeleteResult,
+  In,
+  Repository,
+  FindOptionsWhere,
+  Between,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import {
@@ -23,10 +29,18 @@ export class ProductsService {
 
   findAll(params?: FilterProductDto) {
     if (params) {
+      const where: FindOptionsWhere<Product> = {};
       const { limit, offset } = params;
+      const { minPrice, maxPrice } = params;
+
+      if (minPrice & maxPrice) {
+        where.price = Between(minPrice, maxPrice);
+      }
+
       const skipValue = offset >= 0 ? offset * limit : 0;
       return this.productRepository.find({
         relations: ['brand'],
+        where,
         take: limit,
         skip: skipValue,
       });
