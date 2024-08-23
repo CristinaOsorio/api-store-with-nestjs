@@ -1,24 +1,23 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteResult, Repository } from 'typeorm';
+
+import { CreateCustomerDto, UpdateCustomerDto } from '../dtos/customers.dto';
 import { Customer } from '../entities/customer.entity';
 
 @Injectable()
 export class CustomersService {
-  private counterId = 1;
-  private customers: Customer[] = [
-    {
-      id: 1,
-      name: 'Pedro',
-      lastName: 'Walle',
-      phone: '123456789',
-    },
-  ];
+  constructor(
+    @InjectRepository(Customer)
+    private customerRepository: Repository<Customer>,
+  ) {}
 
-  findAll() {
-    return this.customers;
+  findAll(): Promise<Customer[]> {
+    return this.customerRepository.find();
   }
 
-  findOne(id: number) {
-    const customer = this.customers.find((customer) => customer.id == id);
+  async findOne(id: number): Promise<Customer> {
+    const customer = await this.customerRepository.findOneBy({ id });
 
     if (!customer) {
       throw new HttpException(
@@ -29,45 +28,34 @@ export class CustomersService {
     return customer;
   }
 
-  create(payload: any) {
-    this.counterId = this.counterId + 1;
-    const customer = {
-      id: this.counterId,
-      ...payload,
-    };
-
-    this.customers.push(customer);
-
-    return customer;
+  create(payload: CreateCustomerDto): Promise<Customer> {
+    const customer = this.customerRepository.create(payload);
+    return this.customerRepository.save(customer);
   }
 
-  update(id: number, payload: any) {
-    const customerIndex = this.searchIndex(id);
-    if (customerIndex !== -1) {
-      this.customers[customerIndex] = {
-        ...this.customers[customerIndex],
-        ...payload,
-      };
-      return this.customers[customerIndex];
-    }
+  async update(id: number, payload: UpdateCustomerDto): Promise<Customer> {
+    const customer = await this.customerRepository.findOneBy({ id });
 
-    throw new HttpException(`Customer #${id} not found.`, HttpStatus.NOT_FOUND);
-  }
-
-  delete(id: number): boolean {
-    const customerIndex = this.searchIndex(id);
-    if (customerIndex === -1) {
+    if (!customer) {
       throw new HttpException(
         `Customer #${id} not found.`,
         HttpStatus.NOT_FOUND,
       );
     }
-    this.customers.splice(customerIndex, 1);
 
-    return true;
+    this.customerRepository.merge(customer, payload);
+    return this.customerRepository.save(customer);
   }
 
-  private searchIndex(id: number): number {
-    return this.customers.findIndex((customer) => customer.id === id);
+  async delete(id: number): Promise<DeleteResult> {
+    const customer = await this.customerRepository.findOneBy({ id });
+    if (!customer) {
+      throw new HttpException(
+        `Customer #${id} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return this.customerRepository.delete(id);
   }
 }

@@ -1,28 +1,24 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Brand } from '../entities/brand.entity';
+import { CreateBrandDto, UpdateBrandDto } from '../dtos/brands.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
 export class BrandsService {
-  private counterId = 2;
-  private brands: Brand[] = [
-    {
-      id: 1,
-      name: 'brand 1',
-      image: '',
-    },
-    {
-      id: 2,
-      name: 'brand 2',
-      image: '',
-    },
-  ];
+  constructor(
+    @InjectRepository(Brand) private brandRepository: Repository<Brand>,
+  ) {}
 
   findAll() {
-    return this.brands;
+    return this.brandRepository.find();
   }
 
-  findOne(id: number) {
-    const brand = this.brands.find((brand) => brand.id == id);
+  async findOne(id: number) {
+    const brand = await this.brandRepository.findOne({
+      where: { id },
+      relations: ['products'],
+    });
 
     if (!brand) {
       throw new HttpException(`Brand #${id} not found.`, HttpStatus.NOT_FOUND);
@@ -30,42 +26,29 @@ export class BrandsService {
     return brand;
   }
 
-  create(payload: any) {
-    this.counterId = this.counterId + 1;
-    const brand = {
-      id: this.counterId,
-      ...payload,
-    };
-
-    this.brands.push(brand);
-
-    return brand;
+  create(payload: CreateBrandDto) {
+    const brand = this.brandRepository.create(payload);
+    return this.brandRepository.save(brand);
   }
 
-  update(id: number, payload: any) {
-    const brandIndex = this.searchIndex(id);
-    if (brandIndex !== -1) {
-      this.brands[brandIndex] = {
-        ...this.brands[brandIndex],
-        ...payload,
-      };
-      return this.brands[brandIndex];
-    }
+  async update(id: number, payload: UpdateBrandDto) {
+    const brand = await this.brandRepository.findOneBy({ id });
 
-    throw new HttpException(`Brand #${id} not found.`, HttpStatus.NOT_FOUND);
-  }
-
-  delete(id: number): boolean {
-    const brandIndex = this.searchIndex(id);
-    if (brandIndex === -1) {
+    if (!brand) {
       throw new HttpException(`Brand #${id} not found.`, HttpStatus.NOT_FOUND);
     }
-    this.brands.splice(brandIndex, 1);
 
-    return true;
+    this.brandRepository.merge(brand, payload);
+    return this.brandRepository.save(brand);
   }
 
-  private searchIndex(id: number): number {
-    return this.brands.findIndex((brand) => brand.id === id);
+  async delete(id: number): Promise<DeleteResult> {
+    const brand = await this.brandRepository.findOneBy({ id });
+
+    if (!brand) {
+      throw new HttpException(`Brand #${id} not found.`, HttpStatus.NOT_FOUND);
+    }
+
+    return this.brandRepository.delete(id);
   }
 }

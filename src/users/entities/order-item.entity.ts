@@ -1,23 +1,19 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  CreateDateColumn,
+  Entity,
+  Column,
+  ManyToOne,
 } from 'typeorm';
-import { Product } from './product.entity';
+
+import { Product } from '../../products/entities/product.entity';
+import { Order } from './order.entity';
 
 @Entity()
-export class Brand {
+export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ type: 'varchar', unique: true })
-  name: string;
-
-  @Column({ type: 'varchar' })
-  image: string;
 
   @CreateDateColumn({
     type: 'timestamptz',
@@ -31,6 +27,12 @@ export class Brand {
   })
   updateAt: Date;
 
-  @OneToMany(() => Product, (product) => product.brand)
-  products: Product[];
+  @Column({ type: 'int' })
+  quantity: number;
+
+  @ManyToOne(() => Product)
+  product: Product;
+
+  @ManyToOne(() => Order, (order) => order.items)
+  order: Order;
 }

@@ -15,6 +15,7 @@ import { CreateUserDto, UpdateUserDto } from '../dtos/users.dto';
 import { User } from '../entities/user.entity';
 import { UsersService } from '../services/users.service';
 import { Order } from '../entities/order.entity';
+import { DeleteResult } from 'typeorm';
 
 @ApiTags('Users')
 @Controller('users')
@@ -22,24 +23,24 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  getAll(): User[] {
+  getAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.ACCEPTED)
-  getOne(@Param('id', ParseIntPipe) id: number): User {
+  getOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
     return this.usersService.findOne(id);
   }
 
-  @Get(':id/orders')
-  @HttpCode(HttpStatus.OK)
-  getOrders(@Param('id', ParseIntPipe) id: number): Order {
-    return this.usersService.getOrderByUser(id);
-  }
+  // @Get(':id/orders')
+  // @HttpCode(HttpStatus.OK)
+  // getOrders(@Param('id', ParseIntPipe) id: number): Promise<Order> {
+  //   return this.usersService.getOrderByUser(id);
+  // }
 
   @Post()
-  create(@Body() payload: CreateUserDto): User {
+  create(@Body() payload: CreateUserDto): Promise<User> {
     return this.usersService.create(payload);
   }
 
@@ -47,12 +48,12 @@ export class UsersController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() payload: UpdateUserDto,
-  ): User {
+  ): Promise<User> {
     return this.usersService.update(id, payload);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number): boolean {
+  delete(@Param('id', ParseIntPipe) id: number): Promise<DeleteResult> {
     return this.usersService.delete(id);
   }
 }
